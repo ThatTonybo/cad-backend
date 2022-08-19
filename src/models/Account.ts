@@ -3,9 +3,11 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 export interface IAccount {
-    email: string;
+  email: string;
 }
 
 export const AccountSchema = new Schema<IAccount>({
-    email: String
+  email: String,
 });
+
+export const Account = mongoose.model<IAccount>('Account', AccountSchema);
