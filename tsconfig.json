@@ -1,0 +1,19 @@
+{
+  "emitDecoratorMetadata": true,
+  "experimentalDecorators": true,
+  "compilerOptions": {
+      "module": "commonjs",
+      "target": "es6",
+      "allowSyntheticDefaultImports": true,
+      "esModuleInterop": true,
+      "noImplicitAny": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node",
+      "sourceMap": true,
+      "outDir": "dist",
+      "baseUrl": "./src"
+  },
+  "include": [
+      "./src/**/*"
+  ]
+}
