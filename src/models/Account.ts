@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
+import { IAccount } from 'interfaces';
 
 const Schema = mongoose.Schema;
 
-export interface IAccount {
-  email: string;
-}
-
 export const AccountSchema = new Schema<IAccount>({
   email: String,
+  password: String,
+  verified: Boolean
 });
 
 export const Account = mongoose.model<IAccount>('Account', AccountSchema);
