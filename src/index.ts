@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import helmet from 'helmet';
 import cors from 'cors';
 
 import { route as AccountsRoute } from './routes';
@@ -10,6 +11,7 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(helmet());
 
 app.use(
   cors({

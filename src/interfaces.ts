@@ -1,7 +1,12 @@
 export interface IAccount {
     email: string;
     password: string;
+    flags: IAccountFlags;
+}
+
+export interface IAccountFlags {
     verified: boolean;
+    admin: boolean;
 }
 
 export interface IAuthenticatedResponse {
