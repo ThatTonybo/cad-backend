@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
 
-import { route as AccountsRoute } from './routes';
+import { route as AccountsRoute } from './routes/Account';
+import { route as CharactersRoute } from './routes/Character';
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use(
 );
 
 app.use('/accounts', AccountsRoute);
+app.use('/characters', CharactersRoute);
 
 app.listen(process.env.PORT, async () => {
   await mongoose.connect(process.env.MONGODB_URL!);

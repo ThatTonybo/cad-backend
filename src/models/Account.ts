@@ -8,6 +8,8 @@ export const AccountSchema = new Schema<IAccount>({
   password: String,
   flags: {
     verified: Boolean,
+    leo: Boolean,
+    ems: Boolean,
     admin: Boolean
   }
 });
