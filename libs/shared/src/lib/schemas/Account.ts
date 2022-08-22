@@ -4,7 +4,7 @@ const AccountFlagsSchema = z.object({
   verified: z.boolean(),
   leo: z.boolean(),
   ems: z.boolean(),
-  admin: z.boolean(),
+  admin: z.boolean()
 });
 
 export const AccountCreateSchema = z.object({
@@ -13,13 +13,13 @@ export const AccountCreateSchema = z.object({
   password: z
     .string()
     .min(8)
-    .regex(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/),
+    .regex(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/)
 });
 
 export const AccountLoginSchema = z.object({
   email: z.string().email(),
 
-  password: z.string(),
+  password: z.string()
 });
 
 export const AccountUpdateSchema = z.optional(
@@ -30,8 +30,8 @@ export const AccountUpdateSchema = z.optional(
       .string()
       .min(8)
       .regex(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/)
-      .optional(),
-  }),
+      .optional()
+  })
 );
 
 export const AccountUpdateFlagsSchema = z.optional(AccountFlagsSchema.omit({ admin: true }));

@@ -9,7 +9,7 @@ const LicenseTypeSchema = z.union([
   z.literal('driver'),
   z.literal('weapon'),
   z.literal('fishing'),
-  z.literal('hunting'),
+  z.literal('hunting')
 ]);
 
 const LicenseStatusSchema = z.union([z.literal('active'), z.literal('suspended'), z.literal('expired')]);
@@ -22,18 +22,18 @@ const CharacterGenericLicenseSchema = z.object({
   id: z.string(),
   type: LicenseTypeSchema,
   status: LicenseStatusSchema,
-  issued: DateSchema,
+  issued: DateSchema
 });
 
 const CharacterWeaponSchema = z.object({
   serial: z.string(),
-  type: WeaponTypeSchema,
+  type: WeaponTypeSchema
 });
 
 const CharacterRecordSchema = z.object({
   date: DateSchema,
   info: z.string(),
-  officer: z.instanceof(Types.ObjectId),
+  officer: z.instanceof(Types.ObjectId)
 });
 
 export const CharacterCreateSchema = z.object({
@@ -43,7 +43,7 @@ export const CharacterCreateSchema = z.object({
 
   dob: DateSchema,
 
-  address: z.string(),
+  address: z.string()
 });
 
 export const CharacterUnrestrictedUpdateSchema = z.optional(
@@ -65,7 +65,7 @@ export const CharacterUnrestrictedUpdateSchema = z.optional(
         driver: CharacterGenericLicenseSchema,
         weapon: CharacterGenericLicenseSchema,
         fishing: CharacterGenericLicenseSchema,
-        hunting: CharacterGenericLicenseSchema,
+        hunting: CharacterGenericLicenseSchema
       })
       .optional(),
 
@@ -75,8 +75,8 @@ export const CharacterUnrestrictedUpdateSchema = z.optional(
 
     arrests: z.array(CharacterRecordSchema).optional(),
 
-    warrants: z.array(CharacterRecordSchema).optional(),
-  }),
+    warrants: z.array(CharacterRecordSchema).optional()
+  })
 );
 
 export const CharacterUpdateBasicsSchema = z.optional(
@@ -94,12 +94,12 @@ export const CharacterUpdateBasicsSchema = z.optional(
         driver: CharacterGenericLicenseSchema,
         weapon: CharacterGenericLicenseSchema,
         fishing: CharacterGenericLicenseSchema,
-        hunting: CharacterGenericLicenseSchema,
+        hunting: CharacterGenericLicenseSchema
       })
       .optional(),
 
-    weapons: z.array(CharacterWeaponSchema).optional(),
-  }),
+    weapons: z.array(CharacterWeaponSchema).optional()
+  })
 );
 
 export const CharacterCreateRecordSchema = z.object({
@@ -107,13 +107,13 @@ export const CharacterCreateRecordSchema = z.object({
 
   info: z.string(),
 
-  officer: z.instanceof(Types.ObjectId),
+  officer: z.instanceof(Types.ObjectId)
 });
 
 export const CharacterCreateCitationArrestSchema = CharacterCreateRecordSchema.extend({
-  location: z.string(),
+  location: z.string()
 });
 
 export const CharacterCreateWarrantSchema = CharacterCreateRecordSchema.extend({
-  status: WarrantStatusSchema,
+  status: WarrantStatusSchema
 });

@@ -1,18 +1,18 @@
 {
   "extends": ["plugin:@nrwl/nx/react-typescript", "next", "next/core-web-vitals", "../../.eslintrc.json"],
-  "ignorePatterns": ["!**/*"],
+  "ignorePatterns": ["!**/*", ".next/**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": ["apps/frontend/tsconfig(.*)?.json"]
-      },
       "rules": {
         "@next/next/no-html-link-for-pages": ["error", "apps/frontend/pages"]
       }
     },
     {
       "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": ["apps/frontend/tsconfig.json", "apps/frontend/tsconfig.spec.json"]
+      },
       "rules": {}
     },
     {
