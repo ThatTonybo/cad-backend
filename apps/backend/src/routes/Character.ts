@@ -152,8 +152,7 @@ route.patch(
     if (changes.dob) {
       if (changes.dob === character.dob)
         return res.status(400).json({ error: 'Value not changed from current value: dob' });
-      if (!isMatch(changes.dob, 'yyyy-MM-dd'))
-        return res.status(400).json({ error: 'Invalid date provided for: dob' });
+      if (!isMatch(changes.dob, 'yyyy-MM-dd')) return res.status(400).json({ error: 'Invalid date provided for: dob' });
     }
 
     if (changes.address) {

@@ -18,8 +18,7 @@ export const requireAuthentication = async (
 ) => {
   const header = req.headers.authorization;
   if (!header) return res.status(401).json({ error: "Missing 'Authorization' header" });
-  if (!header.startsWith('Bearer '))
-    return res.status(401).json({ error: 'Session token must be a Bearer token' });
+  if (!header.startsWith('Bearer ')) return res.status(401).json({ error: 'Session token must be a Bearer token' });
 
   const decodedSession: TDecodeResult = await decodeSession(process.env.JWT_SECRET!, header.split(' ')[1]);
   if (decodedSession.type === 'integrityError' || decodedSession.type === 'invalidToken')
@@ -58,17 +57,12 @@ export const requireVerified = async (
   res: Response<unknown, IAuthenticatedResponse>,
   next: NextFunction,
 ) => {
-  if (res.locals.account.flags.verified === false)
-    return res.status(403).json({ error: 'Account not verified' });
+  if (res.locals.account.flags.verified === false) return res.status(403).json({ error: 'Account not verified' });
 
   return next();
 };
 
-export const requireLEO = async (
-  req: Request,
-  res: Response<unknown, IAuthenticatedResponse>,
-  next: NextFunction,
-) => {
+export const requireLEO = async (req: Request, res: Response<unknown, IAuthenticatedResponse>, next: NextFunction) => {
   if (res.locals.account.flags.leo === false || res.locals.account.flags.admin === false)
     return res.status(403).json({ error: 'Invalid authorization' });
 
@@ -80,8 +74,7 @@ export const requireAdmin = async (
   res: Response<unknown, IAuthenticatedResponse>,
   next: NextFunction,
 ) => {
-  if (res.locals.account.flags.admin === false)
-    return res.status(403).json({ error: 'Invalid authorization' });
+  if (res.locals.account.flags.admin === false) return res.status(403).json({ error: 'Invalid authorization' });
 
   return next();
 };
