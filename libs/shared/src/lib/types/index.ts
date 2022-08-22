@@ -60,8 +60,7 @@ export interface ICharacter {
 
 export type TGender = 'male' | 'female' | 'non-binary';
 
-export type TDateYYYYMMDD =
-  `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
+export type TDateYYYYMMDD = `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
 
 export type TLicenseType = 'driver' | 'weapon' | 'fishing' | 'hunting';
 

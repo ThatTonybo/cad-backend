@@ -34,6 +34,4 @@ export const AccountUpdateSchema = z.optional(
   }),
 );
 
-export const AccountUpdateFlagsSchema = z.optional(
-  AccountFlagsSchema.omit({ admin: true }),
-);
+export const AccountUpdateFlagsSchema = z.optional(AccountFlagsSchema.omit({ admin: true }));

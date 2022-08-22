@@ -11,11 +11,7 @@ import {
   ICharacterWarrant,
   validateAddress,
 } from '@cad/shared';
-import {
-  requireAuthentication,
-  requireVerified,
-  requireLEO,
-} from '../middlewares/authentication';
+import { requireAuthentication, requireVerified, requireLEO } from '../middlewares/authentication';
 import { Character } from '../models';
 
 export const route = Router();
@@ -30,8 +26,7 @@ route.post(
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const validation = await CharacterCreateSchema.safeParse(req.body);
 
-    if (validation.success === false)
-      return res.status(400).json({ errors: validation.error.issues }).end();
+    if (validation.success === false) return res.status(400).json({ errors: validation.error.issues }).end();
 
     if (!isMatch(validation.data.dob, 'yyyy-MM-dd'))
       return res.status(400).json({ error: 'Invalid date provided for: dob' });
@@ -40,10 +35,7 @@ route.post(
       (x) => x && x.name.toLowerCase() === validation.data.name,
     ).clone();
     if (charactersWithExistingName.length > 0)
-      return res
-        .status(400)
-        .json({ error: 'A character with that name already exists' })
-        .end();
+      return res.status(400).json({ error: 'A character with that name already exists' }).end();
 
     const character = new Character({
       owner: new Types.ObjectId(res.locals.session.id),
@@ -79,9 +71,7 @@ route.get(
       owner: new Types.ObjectId(res.locals.session.id),
     });
 
-    const filteredCharacters = characters.map(
-      ({ __v, ...character }) => character,
-    );
+    const filteredCharacters = characters.map(({ __v, ...character }) => character);
 
     return res.json(filteredCharacters);
   },
@@ -96,8 +86,7 @@ route.get(
   requireVerified,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
     if (character.owner.toString() !== res.locals.session.id)
       return res.status(403).json({ error: 'Invalid authorization' }).end();
@@ -135,8 +124,7 @@ route.patch(
   requireVerified,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
     if (character.owner.toString() !== res.locals.session.id)
       return res.status(403).json({ error: 'Invalid authorization' }).end();
@@ -156,53 +144,37 @@ route.patch(
     // Individual Validation
 
     if (changes.name && changes.name === character.name)
-      return res
-        .status(400)
-        .json({ error: 'Value not changed from current value: name' });
+      return res.status(400).json({ error: 'Value not changed from current value: name' });
 
     if (changes.gender && changes.gender === character.gender)
-      return res
-        .status(400)
-        .json({ error: 'Value not changed from current value: gender' });
+      return res.status(400).json({ error: 'Value not changed from current value: gender' });
 
     if (changes.dob) {
       if (changes.dob === character.dob)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: dob' });
+        return res.status(400).json({ error: 'Value not changed from current value: dob' });
       if (!isMatch(changes.dob, 'yyyy-MM-dd'))
-        return res
-          .status(400)
-          .json({ error: 'Invalid date provided for: dob' });
+        return res.status(400).json({ error: 'Invalid date provided for: dob' });
     }
 
     if (changes.address) {
       if (changes.address === character.address)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: address' });
+        return res.status(400).json({ error: 'Value not changed from current value: address' });
 
       const isAddressValid = await validateAddress(changes.address);
       if (isAddressValid === false)
         return res.status(400).json({
-          error:
-            "Invalid address provided (format: '[postal] [street name], [suburb]')",
+          error: "Invalid address provided (format: '[postal] [street name], [suburb]')",
         });
     }
 
     if (changes.licenses && changes.licenses === character.licenses)
-      return res
-        .status(400)
-        .json({ error: 'Value not changed from current value: address' });
+      return res.status(400).json({ error: 'Value not changed from current value: address' });
 
     if (changes.weapons && changes.weapons === character.weapons)
-      return res
-        .status(400)
-        .json({ error: 'Value not changed from current value: address' });
+      return res.status(400).json({ error: 'Value not changed from current value: address' });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const key in changes)
-      (character as any)[key] = changes[key as keyof typeof changes];
+    for (const key in changes) (character as any)[key] = changes[key as keyof typeof changes];
 
     await character.save();
 
@@ -221,8 +193,7 @@ route.delete(
   requireVerified,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
     if (character.owner.toString() !== res.locals.session.id)
       return res.status(403).json({ error: 'Invalid authorization' }).end();
@@ -243,12 +214,9 @@ route.post(
   requireLEO,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
-    const validation = await CharacterCreateCitationArrestSchema.safeParse(
-      req.body,
-    );
+    const validation = await CharacterCreateCitationArrestSchema.safeParse(req.body);
 
     if (validation.success === false)
       return res
@@ -281,12 +249,9 @@ route.post(
   requireLEO,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
-    const validation = await CharacterCreateCitationArrestSchema.safeParse(
-      req.body,
-    );
+    const validation = await CharacterCreateCitationArrestSchema.safeParse(req.body);
 
     if (validation.success === false)
       return res
@@ -319,8 +284,7 @@ route.post(
   requireLEO,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const character = await Character.findById(req.params.characterID);
-    if (!character)
-      return res.status(404).json({ error: 'Character not found' }).end();
+    if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
     const validation = await CharacterCreateWarrantSchema.safeParse(req.body);
 

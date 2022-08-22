@@ -85,7 +85,4 @@ export const CharacterSchema = new Schema<ICharacter>(
   { minimize: false },
 );
 
-export const Character = mongoose.model<ICharacter>(
-  'Character',
-  CharacterSchema,
-);
+export const Character = mongoose.model<ICharacter>('Character', CharacterSchema);

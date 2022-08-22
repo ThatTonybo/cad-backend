@@ -30,9 +30,7 @@ route.get(
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const accounts = await Account.find({});
 
-    const filteredAccounts = accounts.map(
-      ({ password, __v, ...account }) => account,
-    );
+    const filteredAccounts = accounts.map(({ password, __v, ...account }) => account);
 
     return res.json(filteredAccounts);
   },
@@ -41,70 +39,61 @@ route.get(
 /**
  * Create an account
  */
-route.post(
-  '/',
-  async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
-    const validation = AccountCreateSchema.safeParse(req.body);
+route.post('/', async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
+  const validation = AccountCreateSchema.safeParse(req.body);
 
-    if (validation.success === false)
-      return res.status(400).json({ errors: validation.error.issues }).end();
+  if (validation.success === false) return res.status(400).json({ errors: validation.error.issues }).end();
 
-    const hashedPassword = await hash(validation.data.password, 11);
+  const hashedPassword = await hash(validation.data.password, 11);
 
-    const account = new Account({
-      email: validation.data.email,
-      password: hashedPassword,
-      flags: {
-        verified: false,
-        leo: false,
-        ems: false,
-        admin: false,
-      },
-    });
+  const account = new Account({
+    email: validation.data.email,
+    password: hashedPassword,
+    flags: {
+      verified: false,
+      leo: false,
+      ems: false,
+      admin: false,
+    },
+  });
 
-    await account.save();
+  await account.save();
 
-    return res.status(201).json({
-      id: account._id,
-    });
-  },
-);
+  return res.status(201).json({
+    id: account._id,
+  });
+});
 
 /**
  * Log in and obtain a session token
  */
-route.post(
-  '/login',
-  async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
-    const validation = await AccountLoginSchema.safeParse(req.body);
+route.post('/login', async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
+  const validation = await AccountLoginSchema.safeParse(req.body);
 
-    if (validation.success === false)
-      return res
-        .status(400)
-        .json({
-          errors: validation.error.issues,
-        })
-        .end();
+  if (validation.success === false)
+    return res
+      .status(400)
+      .json({
+        errors: validation.error.issues,
+      })
+      .end();
 
-    const account = await Account.findOne({ email: validation.data.email });
-    if (!account)
-      return res.status(400).json({ error: 'Invalid email or password' }).end();
+  const account = await Account.findOne({ email: validation.data.email });
+  if (!account) return res.status(400).json({ error: 'Invalid email or password' }).end();
 
-    const validPassword = await compare(
-      validation.data.password,
+  const validPassword = await compare(
+    validation.data.password,
 
-      account.password,
-    );
-    if (validPassword === false)
-      return res.status(400).json({ error: 'Invalid email or password' }).end();
+    account.password,
+  );
+  if (validPassword === false) return res.status(400).json({ error: 'Invalid email or password' }).end();
 
-    const session = await encodeSession(process.env.JWT_SECRET as string, {
-      id: account._id.toString(),
-    });
+  const session = await encodeSession(process.env.JWT_SECRET as string, {
+    id: account._id.toString(),
+  });
 
-    return res.status(201).json(session);
-  },
-);
+  return res.status(201).json(session);
+});
 
 /**
  * Fetch authenticated account details
@@ -151,19 +140,12 @@ route.patch(
 
     // Individual Validation
     if (changes.email && changes.email === res.locals.account.email)
-      return res
-        .status(400)
-        .json({ error: 'Value not changed from current value: email' });
+      return res.status(400).json({ error: 'Value not changed from current value: email' });
 
     if (changes.password) {
-      const equalToCurrentPassword = await compare(
-        changes.password,
-        res.locals.account.password,
-      );
+      const equalToCurrentPassword = await compare(changes.password, res.locals.account.password);
       if (equalToCurrentPassword === true)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: password' });
+        return res.status(400).json({ error: 'Value not changed from current value: password' });
 
       const hashedPassword = await hash(changes.password, 11);
 
@@ -171,8 +153,7 @@ route.patch(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const key in changes)
-      (res.locals.account as any)[key] = changes[key as keyof typeof changes];
+    for (const key in changes) (res.locals.account as any)[key] = changes[key as keyof typeof changes];
 
     await res.locals.account.save();
 
@@ -193,8 +174,7 @@ route.get(
   requireAdmin,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const account = await Account.findById(res.locals.session.id);
-    if (!account)
-      return res.status(404).json({ error: 'Account not found' }).end();
+    if (!account) return res.status(404).json({ error: 'Account not found' }).end();
 
     const data = {
       id: res.locals.account._id,
@@ -217,8 +197,7 @@ route.get(
   requireAdmin,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const account = await Account.findById(res.locals.session.id);
-    if (!account)
-      return res.status(404).json({ error: 'Account not found' }).end();
+    if (!account) return res.status(404).json({ error: 'Account not found' }).end();
 
     if (
       req.body &&
@@ -241,27 +220,21 @@ route.get(
 
     if (validation.data?.verified) {
       if (validation.data?.verified === changes.verified)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: verified' });
+        return res.status(400).json({ error: 'Value not changed from current value: verified' });
 
       changes.verified = validation.data.verified;
     }
 
     if (validation.data?.leo) {
       if (validation.data?.leo === changes.leo)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: leo' });
+        return res.status(400).json({ error: 'Value not changed from current value: leo' });
 
       changes.leo = validation.data.leo;
     }
 
     if (validation.data?.ems) {
       if (validation.data?.ems === changes.ems)
-        return res
-          .status(400)
-          .json({ error: 'Value not changed from current value: ems' });
+        return res.status(400).json({ error: 'Value not changed from current value: ems' });
 
       changes.ems = validation.data.ems;
     }

@@ -17,36 +17,21 @@ export const requireAuthentication = async (
   next: NextFunction,
 ) => {
   const header = req.headers.authorization;
-  if (!header)
-    return res.status(401).json({ error: "Missing 'Authorization' header" });
+  if (!header) return res.status(401).json({ error: "Missing 'Authorization' header" });
   if (!header.startsWith('Bearer '))
-    return res
-      .status(401)
-      .json({ error: 'Session token must be a Bearer token' });
+    return res.status(401).json({ error: 'Session token must be a Bearer token' });
 
-  const decodedSession: TDecodeResult = await decodeSession(
-    process.env.JWT_SECRET!,
-    header.split(' ')[1],
-  );
-  if (
-    decodedSession.type === 'integrityError' ||
-    decodedSession.type === 'invalidToken'
-  )
+  const decodedSession: TDecodeResult = await decodeSession(process.env.JWT_SECRET!, header.split(' ')[1]);
+  if (decodedSession.type === 'integrityError' || decodedSession.type === 'invalidToken')
     return res.status(401).json({ error: 'Invalid session token' }).end();
 
-  const expiration: TExpirationStatus = await checkSessionExpirationStatus(
-    decodedSession.session,
-  );
-  if (expiration === 'expired')
-    return res.status(401).json({ error: 'Expired session token' }).end();
+  const expiration: TExpirationStatus = await checkSessionExpirationStatus(decodedSession.session);
+  if (expiration === 'expired') return res.status(401).json({ error: 'Expired session token' }).end();
 
   let session: ISession;
 
   if (expiration === 'grace') {
-    const { token, expires, issued } = await encodeSession(
-      process.env.JWT_SECRET!,
-      decodedSession.session,
-    );
+    const { token, expires, issued } = await encodeSession(process.env.JWT_SECRET!, decodedSession.session);
 
     session = {
       ...decodedSession.session,
@@ -59,11 +44,7 @@ export const requireAuthentication = async (
   } else session = decodedSession.session;
 
   const account = await Account.findById(session.id);
-  if (!account)
-    return res
-      .status(401)
-      .json({ error: 'Associated account not found' })
-      .end();
+  if (!account) return res.status(401).json({ error: 'Associated account not found' }).end();
 
   res.locals.session = session;
 
@@ -88,10 +69,7 @@ export const requireLEO = async (
   res: Response<unknown, IAuthenticatedResponse>,
   next: NextFunction,
 ) => {
-  if (
-    res.locals.account.flags.leo === false ||
-    res.locals.account.flags.admin === false
-  )
+  if (res.locals.account.flags.leo === false || res.locals.account.flags.admin === false)
     return res.status(403).json({ error: 'Invalid authorization' });
 
   return next();
@@ -109,10 +87,7 @@ export const requireAdmin = async (
 };
 
 // Functions
-export const encodeSession = async (
-  key: string,
-  partialSession: IPartialSession,
-): Promise<IEncodeResult> => {
+export const encodeSession = async (key: string, partialSession: IPartialSession): Promise<IEncodeResult> => {
   const algorithm: TAlgorithm = 'HS512';
   const issued = Date.now();
   const expires = issued + 15 * 60 * 1000;
@@ -130,10 +105,7 @@ export const encodeSession = async (
   };
 };
 
-export const decodeSession = async (
-  key: string,
-  token: string,
-): Promise<TDecodeResult> => {
+export const decodeSession = async (key: string, token: string): Promise<TDecodeResult> => {
   const algorithm: TAlgorithm = 'HS512';
 
   let result: ISession;
@@ -143,18 +115,11 @@ export const decodeSession = async (
   } catch (err) {
     const error: Error = err as Error;
 
-    if (
-      error.message === 'No token supplied' ||
-      error.message === 'Not enough or too many segments'
-    )
+    if (error.message === 'No token supplied' || error.message === 'Not enough or too many segments')
       return { type: 'invalidToken' };
-    if (
-      error.message === 'Signature verification failed' ||
-      error.message === 'Algorithm not supported'
-    )
+    if (error.message === 'Signature verification failed' || error.message === 'Algorithm not supported')
       return { type: 'integrityError' };
-    if (error.message.indexOf('Unexpected token') === 0)
-      return { type: 'invalidToken' };
+    if (error.message.indexOf('Unexpected token') === 0) return { type: 'invalidToken' };
 
     throw error;
   }
@@ -165,9 +130,7 @@ export const decodeSession = async (
   };
 };
 
-export const checkSessionExpirationStatus = async (
-  session: ISession,
-): Promise<TExpirationStatus> => {
+export const checkSessionExpirationStatus = async (session: ISession): Promise<TExpirationStatus> => {
   const now = Date.now();
 
   if (session.expires > now) return 'active';

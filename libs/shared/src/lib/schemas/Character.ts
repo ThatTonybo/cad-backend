@@ -3,9 +3,7 @@ import { Types } from 'mongoose';
 import { z } from 'zod';
 import { TDateYYYYMMDD } from '../types';
 
-const DateSchema = z.custom<TDateYYYYMMDD>(
-  (val) => typeof val === 'string' && isMatch(val, 'yyyy-MM-dd'),
-);
+const DateSchema = z.custom<TDateYYYYMMDD>((val) => typeof val === 'string' && isMatch(val, 'yyyy-MM-dd'));
 
 const LicenseTypeSchema = z.union([
   z.literal('driver'),
@@ -14,22 +12,11 @@ const LicenseTypeSchema = z.union([
   z.literal('hunting'),
 ]);
 
-const LicenseStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('suspended'),
-  z.literal('expired'),
-]);
+const LicenseStatusSchema = z.union([z.literal('active'), z.literal('suspended'), z.literal('expired')]);
 
-const WeaponTypeSchema = z.union([
-  z.literal('pistol'),
-  z.literal('shotgun'),
-  z.literal('rifle'),
-]);
+const WeaponTypeSchema = z.union([z.literal('pistol'), z.literal('shotgun'), z.literal('rifle')]);
 
-const WarrantStatusSchema = z.union([
-  z.literal('active'),
-  z.literal('historical'),
-]);
+const WarrantStatusSchema = z.union([z.literal('active'), z.literal('historical')]);
 
 const CharacterGenericLicenseSchema = z.object({
   id: z.string(),
@@ -123,10 +110,9 @@ export const CharacterCreateRecordSchema = z.object({
   officer: z.instanceof(Types.ObjectId),
 });
 
-export const CharacterCreateCitationArrestSchema =
-  CharacterCreateRecordSchema.extend({
-    location: z.string(),
-  });
+export const CharacterCreateCitationArrestSchema = CharacterCreateRecordSchema.extend({
+  location: z.string(),
+});
 
 export const CharacterCreateWarrantSchema = CharacterCreateRecordSchema.extend({
   status: WarrantStatusSchema,
