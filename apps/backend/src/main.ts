@@ -12,8 +12,8 @@ app
   .use(helmet())
   .use(
     cors({
-      optionsSuccessStatus: 200,
-    }),
+      optionsSuccessStatus: 200
+    })
   );
 
 app.use('/accounts', AccountsRoute);

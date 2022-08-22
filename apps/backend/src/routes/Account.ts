@@ -6,7 +6,7 @@ import {
   AccountLoginSchema,
   AccountUpdateSchema,
   AccountUpdateFlagsSchema,
-  IAccountFlags,
+  IAccountFlags
 } from '@cad/shared';
 import { requireAuthentication, requireVerified, requireAdmin, encodeSession } from '../middlewares/authentication';
 import { Account } from '../models';
@@ -28,7 +28,7 @@ route.get(
     const filteredAccounts = accounts.map(({ password, __v, ...account }) => account);
 
     return res.json(filteredAccounts);
-  },
+  }
 );
 
 /**
@@ -48,14 +48,14 @@ route.post('/', async (req: Request, res: Response<unknown, IAuthenticatedRespon
       verified: false,
       leo: false,
       ems: false,
-      admin: false,
-    },
+      admin: false
+    }
   });
 
   await account.save();
 
   return res.status(201).json({
-    id: account._id,
+    id: account._id
   });
 });
 
@@ -69,7 +69,7 @@ route.post('/login', async (req: Request, res: Response<unknown, IAuthenticatedR
     return res
       .status(400)
       .json({
-        errors: validation.error.issues,
+        errors: validation.error.issues
       })
       .end();
 
@@ -79,12 +79,12 @@ route.post('/login', async (req: Request, res: Response<unknown, IAuthenticatedR
   const validPassword = await compare(
     validation.data.password,
 
-    account.password,
+    account.password
   );
   if (validPassword === false) return res.status(400).json({ error: 'Invalid email or password' }).end();
 
   const session = await encodeSession(process.env.JWT_SECRET as string, {
-    id: account._id.toString(),
+    id: account._id.toString()
   });
 
   return res.status(201).json(session);
@@ -97,7 +97,7 @@ route.get('/@me', requireAuthentication, async (req: Request, res: Response<unkn
   const data = {
     id: res.locals.account._id,
     email: res.locals.account.email,
-    flags: res.locals.account.flags,
+    flags: res.locals.account.flags
   };
 
   return res.json(data);
@@ -116,7 +116,7 @@ route.patch('/@me', requireAuthentication, async (req: Request, res: Response<un
     return res
       .status(400)
       .json({
-        errors: validation.error.issues,
+        errors: validation.error.issues
       })
       .end();
 
@@ -142,7 +142,7 @@ route.patch('/@me', requireAuthentication, async (req: Request, res: Response<un
   await res.locals.account.save();
 
   return res.json({
-    result: `${Object.keys(req.body).length} change(s) saved`,
+    result: `${Object.keys(req.body).length} change(s) saved`
   });
 });
 
@@ -162,11 +162,11 @@ route.get(
     const data = {
       id: res.locals.account._id,
       email: res.locals.account.email,
-      flags: res.locals.account.flags,
+      flags: res.locals.account.flags
     };
 
     return res.json(data);
-  },
+  }
 );
 
 /**
@@ -191,7 +191,7 @@ route.get(
       return res
         .status(400)
         .json({
-          errors: validation.error.issues,
+          errors: validation.error.issues
         })
         .end();
 
@@ -223,5 +223,5 @@ route.get(
     await account.save();
 
     return res.json({ result: 'Flags saved' });
-  },
+  }
 );

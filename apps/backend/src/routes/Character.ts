@@ -9,7 +9,7 @@ import {
   ICharacterCitationArrest,
   CharacterCreateWarrantSchema,
   ICharacterWarrant,
-  validateAddress,
+  validateAddress
 } from '@cad/shared';
 import { requireAuthentication, requireVerified, requireLEO } from '../middlewares/authentication';
 import { Character } from '../models';
@@ -32,8 +32,9 @@ route.post(
       return res.status(400).json({ error: 'Invalid date provided for: dob' });
 
     const charactersWithExistingName = await Character.find(
-      (x) => x && x.name.toLowerCase() === validation.data.name,
+      (x) => x && x.name.toLowerCase() === validation.data.name
     ).clone();
+
     if (charactersWithExistingName.length > 0)
       return res.status(400).json({ error: 'A character with that name already exists' }).end();
 
@@ -48,15 +49,15 @@ route.post(
       weapons: [],
       citations: [],
       arrests: [],
-      warrants: [],
+      warrants: []
     });
 
     await character.save();
 
     return res.status(201).json({
-      id: character._id,
+      id: character._id
     });
-  },
+  }
 );
 
 /**
@@ -68,13 +69,13 @@ route.get(
   requireVerified,
   async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const characters = await Character.find({
-      owner: new Types.ObjectId(res.locals.session.id),
+      owner: new Types.ObjectId(res.locals.session.id)
     });
 
     const filteredCharacters = characters.map(({ __v, ...character }) => character);
 
     return res.json(filteredCharacters);
-  },
+  }
 );
 
 /**
@@ -93,26 +94,18 @@ route.get(
 
     const data = {
       owner: character.owner,
-
       name: character.name,
-
       gender: character.gender,
-
       dob: character.dob,
-
       address: character.address,
-
       licenses: character.licenses,
-
       weapons: character.weapons,
-
       citations: character.citations,
-
-      arrests: character.arrests,
+      arrests: character.arrests
     };
 
     return res.json(data);
-  },
+  }
 );
 
 /**
@@ -135,13 +128,11 @@ route.patch(
       return res
         .status(400)
         .json({
-          errors: validation.error.issues,
+          errors: validation.error.issues
         })
         .end();
 
     const changes = validation.data ?? {};
-
-    // Individual Validation
 
     if (changes.name && changes.name === character.name)
       return res.status(400).json({ error: 'Value not changed from current value: name' });
@@ -162,7 +153,7 @@ route.patch(
       const isAddressValid = await validateAddress(changes.address);
       if (isAddressValid === false)
         return res.status(400).json({
-          error: "Invalid address provided (format: '[postal] [street name], [suburb]')",
+          error: "Invalid address provided (format: '[postal] [street name], [suburb]')"
         });
     }
 
@@ -178,9 +169,9 @@ route.patch(
     await character.save();
 
     return res.json({
-      result: `${Object.keys(req.body).length} change(s) saved`,
+      result: `${Object.keys(req.body).length} change(s) saved`
     });
-  },
+  }
 );
 
 /**
@@ -200,7 +191,7 @@ route.delete(
     await character.deleteOne();
 
     return res.status(204).end();
-  },
+  }
 );
 
 /**
@@ -221,7 +212,7 @@ route.post(
       return res
         .status(400)
         .json({
-          errors: validation.error.issues,
+          errors: validation.error.issues
         })
         .end();
 
@@ -229,13 +220,13 @@ route.post(
       date: validation.data.date,
       info: validation.data.info,
       officer: new Types.ObjectId(res.locals.session.id),
-      location: validation.data.location,
+      location: validation.data.location
     };
 
     character.citations.push(citation);
 
     return res.status(204).end();
-  },
+  }
 );
 
 /**
@@ -256,7 +247,7 @@ route.post(
       return res
         .status(400)
         .json({
-          errors: validation.error.issues,
+          errors: validation.error.issues
         })
         .end();
 
@@ -264,13 +255,13 @@ route.post(
       date: validation.data.date,
       info: validation.data.info,
       officer: new Types.ObjectId(res.locals.session.id),
-      location: validation.data.location,
+      location: validation.data.location
     };
 
     character.arrests.push(arrest);
 
     return res.status(204).end();
-  },
+  }
 );
 
 /**
@@ -291,7 +282,7 @@ route.post(
       return res
         .status(400)
         .json({
-          errors: validation.error.issues,
+          errors: validation.error.issues
         })
         .end();
 
@@ -299,11 +290,11 @@ route.post(
       date: validation.data.date,
       info: validation.data.info,
       officer: new Types.ObjectId(res.locals.session.id),
-      status: validation.data.status,
+      status: validation.data.status
     };
 
     character.warrants.push(warrant);
 
     return res.status(204).end();
-  },
+  }
 );

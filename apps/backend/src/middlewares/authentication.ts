@@ -6,7 +6,7 @@ import {
   TExpirationStatus,
   ISession,
   IPartialSession,
-  IEncodeResult,
+  IEncodeResult
 } from '@cad/shared';
 import { Account } from '../models';
 
@@ -14,7 +14,7 @@ import { Account } from '../models';
 export const requireAuthentication = async (
   req: Request,
   res: Response<unknown, IAuthenticatedResponse>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const header = req.headers.authorization;
   if (!header) return res.status(401).json({ error: "Missing 'Authorization' header" });
@@ -35,7 +35,7 @@ export const requireAuthentication = async (
     session = {
       ...decodedSession.session,
       expires: expires,
-      issued: issued,
+      issued: issued
     };
 
     // If this header is present in a response from a protected route, start using the new token
@@ -55,7 +55,7 @@ export const requireAuthentication = async (
 export const requireVerified = async (
   req: Request,
   res: Response<unknown, IAuthenticatedResponse>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   if (res.locals.account.flags.verified === false) return res.status(403).json({ error: 'Account not verified' });
 
@@ -72,7 +72,7 @@ export const requireLEO = async (req: Request, res: Response<unknown, IAuthentic
 export const requireAdmin = async (
   req: Request,
   res: Response<unknown, IAuthenticatedResponse>,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   if (res.locals.account.flags.admin === false) return res.status(403).json({ error: 'Invalid authorization' });
 
@@ -88,13 +88,13 @@ export const encodeSession = async (key: string, partialSession: IPartialSession
   const session: ISession = {
     ...partialSession,
     issued: issued,
-    expires: expires,
+    expires: expires
   };
 
   return {
     token: encode(session, key, algorithm),
     issued: issued,
-    expires: expires,
+    expires: expires
   };
 };
 
@@ -119,7 +119,7 @@ export const decodeSession = async (key: string, token: string): Promise<TDecode
 
   return {
     type: 'valid',
-    session: result,
+    session: result
   };
 };
 

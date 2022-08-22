@@ -10,8 +10,8 @@ export const AccountSchema = new Schema<IAccount>({
     verified: Boolean,
     leo: Boolean,
     ems: Boolean,
-    admin: Boolean,
-  },
+    admin: Boolean
+  }
 });
 
 export const Account = mongoose.model<IAccount>('Account', AccountSchema);
