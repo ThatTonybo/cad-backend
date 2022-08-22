@@ -1,0 +1,145 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx", "import", "prettier"],
+  "extends": ["plugin:prettier/recommended"],
+  "settings": {
+    "import/resolver": {
+      "typescript": {
+        "alwaystryTypes": true,
+        "project": "@(libs|apps)/*/tsconfig*json"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nrwl/nx/typescript"],
+      "rules": {
+        "import/order": [
+          "error",
+          {
+            "alphabetize": {
+              "caseInsensitive": true,
+              "order": "asc"
+            },
+            "groups": [
+              "builtin",
+              "external",
+              "internal",
+              "parent",
+              "sibling",
+              "unknown"
+            ],
+            "pathGroups": [
+              {
+                "group": "builtin",
+                "pattern": "+(react,express,mongoose)",
+                "position": "before"
+              }
+            ]
+          }
+        ],
+        "import/no-duplicates": "error",
+        "import/first": "error",
+        "import/no-useless-path-segments": [
+          "error",
+          {
+            "noUselessIndex": true
+          }
+        ],
+        "semi": "off",
+        "@typescript-eslint/semi": ["error", "always"],
+        "quotes": "off",
+        "@typescript-eslint/quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true,
+            "allowTemplateLiterals": true
+          }
+        ],
+        "curly": ["error", "multi"],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "ignoreRestSiblings": true,
+            "argsIgnorePattern": "^_"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
+      "rules": {}
+    },
+    {
+      "extends": ["plugin:jest/recommended"],
+      "files": ["*.spec.ts", "*.spec.tsx", "*.test.ts", "*.test.tsx"],
+      "plugins": ["jest"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "jest/prefer-comparison-matcher": "error",
+        "jest/prefer-equality-matcher": "error",
+        "jest/no-conditional-in-test": "error",
+        "jest/consistent-test-it": [
+          "error",
+          {
+            "fn": "it"
+          }
+        ],
+        "jest/expect-expect": "warn",
+        "jest/no-alias-methods": "warn",
+        "jest/no-deprecated-functions": "error",
+        "jest/no-conditional-expect": "error",
+        "jest/no-done-callback": "error",
+        "jest/no-duplicate-hooks": "error",
+        "jest/no-export": "error",
+        "jest/no-focused-tests": "error",
+        "jest/no-identical-title": "error",
+        "jest/no-if": "error",
+        "jest/no-jasmine-globals": "error",
+        "jest/no-mocks-import": "error",
+        "jest/no-test-prefixes": "error",
+        "jest/no-test-return-statement": "error",
+        "jest/prefer-called-with": "warn",
+        "jest/prefer-hooks-on-top": "error",
+        "jest/prefer-spy-on": "error",
+        "jest/prefer-strict-equal": "error",
+        "jest/prefer-to-be": "warn",
+        "jest/prefer-to-contain": "warn",
+        "jest/prefer-to-have-length": "warn",
+        "jest/prefer-todo": "warn",
+        "jest/require-hook": "error",
+        "jest/require-to-throw-message": "error",
+        "jest/require-top-level-describe": "warn",
+        "jest/valid-describe-callback": "error",
+        "jest/valid-expect": "error",
+        "jest/valid-expect-in-promise": "error",
+        "jest/valid-title": "error"
+      }
+    }
+  ]
+}
