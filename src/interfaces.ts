@@ -52,9 +52,9 @@ export interface ICharacter {
     cautionInfo?: string;
     licenses: ICharacterLicenses;
     weapons: ICharacterWeapon[];
-    citations: ICharacterRecord[];
-    arrests: ICharacterRecord[];
-    warrants: ICharacterRecord[];
+    citations: ICharacterCitationArrest[];
+    arrests: ICharacterCitationArrest[];
+    warrants: ICharacterWarrant[];
 }
 
 export type TGender = 'male' | 'female' | 'non-binary';
@@ -66,6 +66,8 @@ export type TLicenseType = 'driver' | 'weapon' | 'fishing' | 'hunting';
 export type TLicenseStatus = 'active' | 'suspended' | 'expired';
 
 export type TWeaponType = 'pistol' | 'shotgun' | 'rifle';
+
+export type TWarrantStatus = 'active' | 'historical';
 
 export interface ICharacterLicenses {
     driver?: ICharacterGenericLicense;
@@ -90,4 +92,12 @@ export interface ICharacterRecord {
     date: TDateYYYYMMDD;
     info: string;
     officer: Types.ObjectId;
+}
+
+export interface ICharacterCitationArrest extends ICharacterRecord {
+    location: string;
+}
+
+export interface ICharacterWarrant extends ICharacterRecord {
+    status: TWarrantStatus;
 }

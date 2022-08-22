@@ -24,6 +24,11 @@ const WeaponTypeSchema = z.union([
     z.literal('rifle')
 ]);
 
+const WarrantStatusSchema = z.union([
+    z.literal('active'),
+    z.literal('historical')
+]);
+
 const CharacterGenericLicenseSchema = z.object({
     id: z.string(),
     type: LicenseTypeSchema,
@@ -131,3 +136,11 @@ export const CharacterCreateRecordSchema = z.object({
 
     officer: z.instanceof(Types.ObjectId)
 });
+
+export const CharacterCreateCitationArrestSchema = CharacterCreateRecordSchema.extend({
+    location: z.string()
+});
+
+export const CharacterCreateWarrantSchema = CharacterCreateRecordSchema.extend({
+    status: WarrantStatusSchema
+}); 

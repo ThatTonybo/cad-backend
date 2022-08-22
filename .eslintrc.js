@@ -18,9 +18,15 @@ module.exports = {
         '@typescript-eslint'
     ],
     'rules': {
-        'semi': ['error', 'always'],
-        'quotes': ['error', 'single'],
+        'semi': 'off',
+        '@typescript-eslint/semi': ['error', 'always'],
+        'quotes': 'off',
+        '@typescript-eslint/quotes': ['error', 'single'],
         'curly': ['error', 'multi'],
-        '@typescript-eslint/no-non-null-assertion': 'off'
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-unused-vars': ['error', {
+            'ignoreRestSiblings': true,
+            'argsIgnorePattern': '^_'
+        }]
     }
 };

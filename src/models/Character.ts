@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ICharacter, ICharacterGenericLicense, ICharacterWeapon, ICharacterRecord } from 'interfaces';
+import { ICharacter, ICharacterGenericLicense, ICharacterWeapon, ICharacterRecord, ICharacterCitationArrest, ICharacterWarrant } from 'interfaces';
 
 const Schema = mongoose.Schema;
 
@@ -36,6 +36,19 @@ const CharacterRecordSchema = new Schema<ICharacterRecord>({
     officer: Schema.Types.ObjectId
 });
 
+const CharacterCitationArrestSchema = new Schema<ICharacterCitationArrest>({
+    ...CharacterRecordSchema.obj,
+    location: String
+});
+
+const CharacterWarrantSchema = new Schema<ICharacterWarrant>({
+    ...CharacterRecordSchema.obj,
+    status: {
+        type: String,
+        enum: ['active', 'historical']
+    },
+});
+
 export const CharacterSchema = new Schema<ICharacter>({
     owner: Schema.Types.ObjectId,
     name: String,
@@ -57,9 +70,9 @@ export const CharacterSchema = new Schema<ICharacter>({
         hunting: { type: CharacterGenericLicenseSchema, required: false }
     },
     weapons: [CharacterWeaponSchema],
-    citations: [CharacterRecordSchema],
-    arrests: [CharacterRecordSchema],
-    warrants: [CharacterRecordSchema]
+    citations: [CharacterCitationArrestSchema],
+    arrests: [CharacterCitationArrestSchema],
+    warrants: [CharacterWarrantSchema]
 }, { minimize: false });
 
 export const Character = mongoose.model<ICharacter>('Character', CharacterSchema);

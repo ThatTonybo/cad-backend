@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+const AccountFlagsSchema = z.object({
+    verified: z.boolean(),
+    leo: z.boolean(),
+    ems: z.boolean(),
+    admin: z.boolean()
+});
+
 export const AccountCreateSchema = z.object({
     email: z.string()
         .email(),
@@ -28,3 +35,5 @@ export const AccountUpdateSchema = z.optional(
             .optional()
     })
 );
+
+export const AccountUpdateFlagsSchema = z.optional(AccountFlagsSchema.omit({ admin: true }));

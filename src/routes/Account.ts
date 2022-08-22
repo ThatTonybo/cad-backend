@@ -1,11 +1,23 @@
 import { Router, Request, Response } from 'express';
 import { hash, compare } from 'bcrypt';
-import { IAuthenticatedResponse } from '../interfaces';
-import { encodeSession, requireAuthentication } from '../util/authentication';
+import { IAuthenticatedResponse, IAccountFlags } from '../interfaces';
+import { encodeSession, requireAuthentication, requireVerified, requireAdmin } from '../util/authentication';
 import { Account } from '../models/Account';
-import { AccountCreateSchema, AccountLoginSchema, AccountUpdateSchema } from '../schemas/Account';
+import { AccountCreateSchema, AccountLoginSchema, AccountUpdateSchema, AccountUpdateFlagsSchema } from '../schemas/Account';
 
 export const route = Router();
+
+/**
+ * Get all accounts
+ * [admin only]
+ */
+route.get('/accounts', requireAuthentication, requireVerified, requireAdmin, async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
+    const accounts = await Account.find({});
+
+    const filteredAccounts = accounts.map(({ password, __v, ...account }) => account);
+
+    return res.json(filteredAccounts);
+});
 
 /**
  * Create an account
@@ -103,4 +115,64 @@ route.patch('/@me', requireAuthentication, async (req: Request, res: Response<un
     await res.locals.account.save();
 
     return res.json({ result: `${Object.keys(req.body).length} change(s) saved` });
+});
+
+/**
+ * Get a specific account
+ * [admin only]
+ */
+route.get('/:accountID', requireAuthentication, requireVerified, requireAdmin, async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
+    const account = await Account.findById(res.locals.session.id);
+    if (!account) return res.status(404).json({ error: 'Account not found' }).end();
+
+    const data = {
+        id: res.locals.account._id,
+        email: res.locals.account.email,
+        flags: res.locals.account.flags
+    };
+
+    return res.json(data);
+});
+
+/**
+ * Change account flags
+ * [admin only]
+ */
+route.get('/:accountID/flags', requireAuthentication, requireVerified, requireAdmin, async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
+    const account = await Account.findById(res.locals.session.id);
+    if (!account) return res.status(404).json({ error: 'Account not found' }).end();
+
+    if (req.body && Object.keys(req.body).length === 0 && Object.getPrototypeOf(req.body) === Object.prototype) return res.json({ result: 'No flags saved' });
+
+    const validation = await AccountUpdateFlagsSchema.safeParse(req.body);
+
+    if (validation.success === false) return res.status(400).json({
+        errors: validation.error.issues
+    }).end();
+    
+    const changes: IAccountFlags = account.flags;
+
+    if (validation.data?.verified) {
+        if (validation.data?.verified === changes.verified) return res.status(400).json({ error: 'Value not changed from current value: verified' });
+
+        changes.verified = validation.data.verified;
+    }
+
+    if (validation.data?.leo) {
+        if (validation.data?.leo === changes.leo) return res.status(400).json({ error: 'Value not changed from current value: leo' });
+
+        changes.leo = validation.data.leo;
+    }
+
+    if (validation.data?.ems) {
+        if (validation.data?.ems === changes.ems) return res.status(400).json({ error: 'Value not changed from current value: ems' });
+
+        changes.ems = validation.data.ems;
+    }
+
+    account.flags = changes;
+
+    await account.save();
+
+    return res.json({ result: 'Flags saved' });
 });

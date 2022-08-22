@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { isMatch } from 'date-fns';
-import { IAuthenticatedResponse, ICharacterRecord } from '../interfaces';
+import { IAuthenticatedResponse, ICharacterCitationArrest, ICharacterWarrant } from '../interfaces';
 import { requireAuthentication, requireLEO, requireVerified } from '../util/authentication';
+import { validateAddress } from '../util/address';
 import { Character } from '../models/Character';
-import { CharacterCreateRecordSchema, CharacterCreateSchema, CharacterUpdateBasicsSchema } from '../schemas/Character';
+import { CharacterCreateCitationArrestSchema, CharacterCreateSchema, CharacterCreateWarrantSchema, CharacterUpdateBasicsSchema } from '../schemas/Character';
 
 export const route = Router();
 
@@ -48,7 +49,9 @@ route.post('/', requireAuthentication, requireVerified, async (req: Request, res
 route.get('/@me', requireAuthentication, requireVerified, async (req: Request, res: Response<unknown, IAuthenticatedResponse>) => {
     const characters = await Character.find({ owner: new Types.ObjectId(res.locals.session.id) });
 
-    return res.json(characters);
+    const filteredCharacters = characters.map(({ __v, ...character }) => character);
+
+    return res.json(filteredCharacters);
 });
 
 /**
@@ -60,7 +63,19 @@ route.get('/:characterID', requireAuthentication, requireVerified, async (req: R
 
     if (character.owner.toString() !== res.locals.session.id) return res.status(403).json({ error: 'Invalid authorization' }).end();
 
-    return res.json(character);
+    const data = {
+        owner: character.owner,
+        name: character.name,
+        gender: character.gender,
+        dob: character.dob,
+        address: character.address,
+        licenses: character.licenses,
+        weapons: character.weapons,
+        citations: character.citations,
+        arrests: character.arrests
+    };
+
+    return res.json(data);
 });
 
 /**
@@ -92,10 +107,8 @@ route.patch('/:characterID', requireAuthentication, requireVerified, async (req:
     if (changes.address) {
         if (changes.address === character.address) return res.status(400).json({ error: 'Value not changed from current value: address' });
 
-        const splitAddress = changes.address.split(', ');
-        if (splitAddress.length !== 2) return res.status(400).json({ error: 'Invalid address provided (format: \'[postal] [street name], [suburb]\')' });
-        const splitAddressFurther = splitAddress[0].split(' ');
-        if (splitAddressFurther.length < 3 || isNaN(Number(splitAddressFurther[0]))) return res.status(400).json({ error: 'Invalid address provided (format: \'[postal] [street name], [suburb]\')' });
+        const isAddressValid = await validateAddress(changes.address);
+        if (isAddressValid === false) return res.status(400).json({ error: 'Invalid address provided (format: \'[postal] [street name], [suburb]\')' });
     }
 
     if (changes.licenses && (changes.licenses === character.licenses)) return res.status(400).json({ error: 'Value not changed from current value: address' });
@@ -131,16 +144,17 @@ route.post('/:characterID/citation', requireAuthentication, requireVerified, req
     const character = await Character.findById(req.params.characterID);
     if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
-    const validation = await CharacterCreateRecordSchema.safeParse(req.body);
+    const validation = await CharacterCreateCitationArrestSchema.safeParse(req.body);
 
     if (validation.success === false) return res.status(400).json({
         errors: validation.error.issues
     }).end();
 
-    const citation: ICharacterRecord = {
+    const citation: ICharacterCitationArrest = {
         date: validation.data.date,
         info: validation.data.info,
-        officer: new Types.ObjectId(res.locals.session.id)
+        officer: new Types.ObjectId(res.locals.session.id),
+        location: validation.data.location
     };
 
     character.citations.push(citation);
@@ -155,16 +169,17 @@ route.post('/:characterID/arrest', requireAuthentication, requireVerified, requi
     const character = await Character.findById(req.params.characterID);
     if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
-    const validation = await CharacterCreateRecordSchema.safeParse(req.body);
+    const validation = await CharacterCreateCitationArrestSchema.safeParse(req.body);
 
     if (validation.success === false) return res.status(400).json({
         errors: validation.error.issues
     }).end();
 
-    const arrest: ICharacterRecord = {
+    const arrest: ICharacterCitationArrest = {
         date: validation.data.date,
         info: validation.data.info,
-        officer: new Types.ObjectId(res.locals.session.id)
+        officer: new Types.ObjectId(res.locals.session.id),
+        location: validation.data.location
     };
 
     character.arrests.push(arrest);
@@ -179,16 +194,17 @@ route.post('/:characterID/warrant', requireAuthentication, requireVerified, requ
     const character = await Character.findById(req.params.characterID);
     if (!character) return res.status(404).json({ error: 'Character not found' }).end();
 
-    const validation = await CharacterCreateRecordSchema.safeParse(req.body);
+    const validation = await CharacterCreateWarrantSchema.safeParse(req.body);
 
     if (validation.success === false) return res.status(400).json({
         errors: validation.error.issues
     }).end();
 
-    const warrant: ICharacterRecord = {
+    const warrant: ICharacterWarrant = {
         date: validation.data.date,
         info: validation.data.info,
-        officer: new Types.ObjectId(res.locals.session.id)
+        officer: new Types.ObjectId(res.locals.session.id),
+        status: validation.data.status
     };
 
     character.warrants.push(warrant);
