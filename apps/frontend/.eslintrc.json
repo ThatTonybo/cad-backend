@@ -1,45 +1,29 @@
 {
-  "extends": ["plugin:@nrwl/nx/react", "../../.eslintrc.json"],
-  "ignorePatterns": ["!**/*"],
+  "extends": ["plugin:@nrwl/nx/react-typescript", "next", "next/core-web-vitals", "../../.eslintrc.json"],
+  "ignorePatterns": ["!**/*", ".next/**/*"],
   "overrides": [
     {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
-      "parserOptions": {
-        "project": ["apps/frontend/tsconfig.*?.json"]
-      },
-      "rules": {}
+      "rules": {
+        "@next/next/no-html-link-for-pages": ["error", "apps/frontend/pages"]
+      }
     },
     {
       "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": ["apps/frontend/tsconfig.json", "apps/frontend/tsconfig.spec.json"]
+      },
       "rules": {}
     },
     {
       "files": ["*.js", "*.jsx"],
       "rules": {}
-    },
-    {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.test.ts", "*.test.tsx"],
-      "plugins": ["testing-library"],
-      "rules": {
-        "react/jsx-key": "off",
-        "testing-library/prefer-presence-queries": "off",
-        "testing-library/no-await-sync-events": "error",
-        "testing-library/no-container": "off",
-        "testing-library/no-manual-cleanup": "error",
-        "testing-library/prefer-explicit-assert": [
-          "warn",
-          {
-            "includeFindQueries": false
-          }
-        ],
-        "testing-library/prefer-user-event": [
-          "warn",
-          {
-            "allowedMethods": ["keyDown", "keyUp"]
-          }
-        ],
-        "testing-library/prefer-wait-for": "warn"
-      }
     }
-  ]
+  ],
+  "rules": {
+    "@next/next/no-html-link-for-pages": "off"
+  },
+  "env": {
+    "jest": true
+  }
 }
